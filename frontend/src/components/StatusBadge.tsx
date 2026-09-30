@@ -3,7 +3,7 @@ const MAP: Record<string, string> = {
   // positive
   ok: 'b-green', pass: 'b-green', intact: 'b-green', normal: 'b-green',
   // caution / review
-  review: 'b-amber', flag: 'b-amber', expected_drift: 'b-amber', running: 'b-amber',
+  review: 'b-amber', flag: 'b-amber', medium: 'b-amber', expected_drift: 'b-amber', running: 'b-amber',
   pending: 'b-amber', queued: 'b-amber', acknowledged: 'b-amber',
   // negative
   quarantine: 'b-red', broken: 'b-red', suspicious_shift: 'b-red', failed: 'b-red',
@@ -14,7 +14,7 @@ const MAP: Record<string, string> = {
   accept: 'b-green',
   // unevaluated / unknown
   'not evaluated yet': 'b-gray', unknown: 'b-gray', unavailable: 'b-gray', resolved: 'b-gray',
-  false_positive: 'b-gray', medium: 'b-gray',
+  false_positive: 'b-gray',
 };
 
 export default function StatusBadge({ status }: { status: string }) {

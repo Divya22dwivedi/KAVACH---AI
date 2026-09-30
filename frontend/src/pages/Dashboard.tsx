@@ -72,14 +72,15 @@ export default function Dashboard() {
   return (
     <div className="page">
       <div className="page-header">
-        <h1 className="page-title">Assurance Dashboard</h1>
+        <span className="dashboard-kicker">AI ASSURANCE WORKSPACE</span>
+        <h1 className="page-title">KavachAI Dashboard</h1>
         <p className="page-sub">
-          Per-module assurance status derived from recorded findings. No single trust score is computed —
-          each module reports its own measured state.
+          Monitor data, model, provenance, and distribution assurance. Module status is derived from
+          recorded findings; no single trust score is computed.
         </p>
       </div>
 
-      <div className="card">
+      <div className="card dashboard-health">
         <div className="card-title">Backend</div>
         {health.loading && <div className="spinner">Checking backend health…</div>}
         {health.error && <div className="alert alert-error">Backend unreachable: {health.error}</div>}
@@ -93,7 +94,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="card">
+      <div className="card dashboard-modules">
         <div className="card-title">Module status</div>
         {findingsApi.loading && <div className="spinner">Loading findings…</div>}
         {findingsApi.error && <div className="alert alert-error">{findingsApi.error}</div>}
@@ -102,7 +103,7 @@ export default function Dashboard() {
             {MODULES.map((m) => {
               const st = moduleStatus(findings, m.key);
               return (
-                <div key={m.key} className="stat-card">
+                <div key={m.key} className={`stat-card module-card module-${m.key}`}>
                   <div className="stat-label">{m.label}</div>
                   <div style={{ margin: '8px 0' }}>
                     <StatusBadge status={STATUS_LABEL[st]} />
@@ -134,7 +135,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="card">
+      <div className="card demo-card">
         <div className="card-title">One-click demo</div>
         <p className="section-text" style={{ color: '#5d6f84' }}>
           Runs the 15-step demo script server-side (clean baseline → controlled synthetic attacks →
@@ -156,6 +157,13 @@ export default function Dashboard() {
           <button className="btn btn-primary" onClick={runDemo} disabled={demo.loading}>
             {demo.loading ? 'Running demo…' : 'RUN DEMO'}
           </button>
+        </div>
+        <div className="demo-flow" aria-label="Demo workflow stages">
+          {['Baseline', 'Synthetic attack', 'Scan', 'Model checks', 'Inference', 'Provenance', 'Shift', 'Report'].map((step, index) => (
+            <span className="demo-flow-step" key={step}>
+              <b>{String(index + 1).padStart(2, '0')}</b>{step}
+            </span>
+          ))}
         </div>
         {demo.loading && (
           <div>
@@ -198,7 +206,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="card">
+      <div className="card recent-card">
         <div className="card-title">Recent findings</div>
         {findingsApi.loading && <div className="spinner">Loading…</div>}
         {!findingsApi.loading && recent.length === 0 && (
@@ -207,16 +215,17 @@ export default function Dashboard() {
         {recent.length > 0 && (
           <div className="table-wrap">
             <table className="table">
-              <thead><tr><th>Title</th><th>Category</th><th>Severity</th><th>Disposition</th></tr></thead>
+            <thead><tr><th>Finding</th><th>Category</th><th>Severity</th><th>Disposition</th><th>Created</th></tr></thead>
               <tbody>
                 {recent.map((f) => (
-                  <tr key={f.id}>
+                <tr key={f.id} className="clickable" onClick={() => navigate('/findings')}>
                     <td>{f.title}</td>
                     <td><StatusBadge status={f.category} /></td>
                     <td><StatusBadge status={f.severity} /></td>
                     <td><StatusBadge status={f.disposition ?? 'REVIEW'} /></td>
-                  </tr>
-                ))}
+                  <td>{f.created_at ?? '—'}</td>
+                </tr>
+              ))}
               </tbody>
             </table>
           </div>

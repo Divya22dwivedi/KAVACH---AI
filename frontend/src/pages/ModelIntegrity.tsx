@@ -7,6 +7,7 @@ import StatusBadge from '../components/StatusBadge';
 export default function ModelIntegrity() {
   const models = useApi(api.listModels);
   const [file, setFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [role, setRole] = useState<'reference' | 'candidate'>('reference');
   const upload = useAsyncAction(api.uploadModel);
 
@@ -57,9 +58,18 @@ export default function ModelIntegrity() {
       <div className="card">
         <div className="card-title">Upload model</div>
         <div className="form-row">
-          <div className="field">
-            <label htmlFor="mfile">Model file (.pt / .pth / .onnx / .pkl)</label>
-            <input id="mfile" className="input" type="file" accept=".pt,.pth,.onnx,.pkl" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          <div className="field upload-field">
+            <label htmlFor="mfile">Upload model · .pt, .pth, .onnx, .pkl</label>
+            <div
+              className={`upload-zone${dragging ? ' is-dragging' : ''}${file ? ' has-files' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setDragging(false); setFile(e.dataTransfer.files[0] ?? null); }}
+            >
+              <span className="upload-icon" aria-hidden="true">↑</span>
+              <span><strong>{file?.name ?? 'Drop a model file here'}</strong><small>or choose a file · supported formats shown above</small></span>
+              <input id="mfile" type="file" accept=".pt,.pth,.onnx,.pkl" aria-label="Choose model file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            </div>
           </div>
           <div className="field">
             <label htmlFor="mrole">Role</label>

@@ -60,7 +60,7 @@ export default function AssuranceReport() {
       </div>
 
       <div className="card">
-        <div className="card-title">Generate</div>
+        <div className="card-title">Create report</div>
         <div className="form-row">
           <div className="field" style={{ flex: 1, minWidth: 260 }}>
             <label htmlFor="exp">Experiment ID</label>
@@ -95,7 +95,12 @@ export default function AssuranceReport() {
       <div className="card">
         <div className="card-title">Section preview</div>
         {!reportId && (
-          <div className="empty-state"><div className="big">No report yet</div>Generate a report to preview its sections here.</div>
+          <div className="empty-state report-empty">
+            <span className="empty-icon" aria-hidden="true">▤</span>
+            <div className="big">No Assurance Report Yet</div>
+            Generate a report for an experiment to review its findings, evidence, limitations, and untested areas.
+            <div><button className="btn btn-primary btn-sm" onClick={doGenerate} disabled={generate.loading || !experimentId}>{generate.loading ? 'Generating…' : 'Generate report'}</button></div>
+          </div>
         )}
         {reportId && preview.loading && <div className="spinner">Loading report JSON…</div>}
         {reportId && preview.error && <div className="alert alert-error">{preview.error}</div>}
