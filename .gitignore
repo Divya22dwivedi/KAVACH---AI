@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+kavach.db
+kavach.db-wal
+kavach.db-shm
+datasets/generated/
+datasets/uploaded/
+datasets/features/
+reports/rep_*.pdf
+reports/rep_*.json
+.env
+.DS_Store
