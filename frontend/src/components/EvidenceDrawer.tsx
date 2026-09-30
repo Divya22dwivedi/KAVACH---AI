@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Finding } from '../api/types';
 import { api } from '../api/client';
 import { useAsyncAction } from '../hooks/useApi';
@@ -27,6 +27,20 @@ export default function EvidenceDrawer({ finding, onClose, onSaved }: Props) {
   const [reviewerNote, setReviewerNote] = useState<string>(finding?.reviewer_note ?? '');
   const save = useAsyncAction(api.patchFinding);
 
+  useEffect(() => {
+    setDisposition(finding?.disposition ?? 'REVIEW');
+    setReviewerNote(finding?.reviewer_note ?? '');
+  }, [finding]);
+
+  useEffect(() => {
+    if (!finding) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [finding, onClose]);
+
   if (!finding) return null;
 
   const handleSave = async () => {
@@ -36,11 +50,11 @@ export default function EvidenceDrawer({ finding, onClose, onSaved }: Props) {
 
   return (
     <>
-      <div className="drawer-overlay" onClick={onClose} />
-      <aside className="drawer" aria-label="finding evidence">
+      <button className="drawer-overlay" onClick={onClose} aria-label="Close finding details" />
+      <aside className="drawer" role="dialog" aria-modal="true" aria-labelledby="finding-drawer-title">
         <div className="drawer-head">
           <div>
-            <h2 className="drawer-title">{finding.title}</h2>
+            <h2 className="drawer-title" id="finding-drawer-title">{finding.title}</h2>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <StatusBadge status={finding.severity} />
               <StatusBadge status={finding.category} />

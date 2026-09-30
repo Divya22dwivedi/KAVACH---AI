@@ -38,6 +38,7 @@ export default function DataIntegrity() {
   const [datasetId, setDatasetId] = useState('');
   const [uploadFormat, setUploadFormat] = useState('folder');
   const [files, setFiles] = useState<FileList | null>(null);
+  const [dragging, setDragging] = useState(false);
   const upload = useAsyncAction(api.uploadDataset);
   const createScan = useAsyncAction(api.createScan);
   const [scan, setScan] = useState<ScanStatus | null>(null);
@@ -162,9 +163,18 @@ export default function DataIntegrity() {
               <option value="coco">coco</option>
             </select>
           </div>
-          <div className="field">
-            <label htmlFor="files">Upload files (≤50 MB)</label>
-            <input id="files" className="input" type="file" multiple onChange={(e) => setFiles(e.target.files)} />
+          <div className="field upload-field">
+            <label htmlFor="files">Upload dataset files</label>
+            <div
+              className={`upload-zone${dragging ? ' is-dragging' : ''}${files?.length ? ' has-files' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setDragging(false); setFiles(e.dataTransfer.files); }}
+            >
+              <span className="upload-icon" aria-hidden="true">↑</span>
+              <span><strong>{files?.length ? `${files.length} file(s) selected` : 'Drop dataset files here'}</strong><small>or choose files · up to 50 MB</small></span>
+              <input id="files" type="file" multiple aria-label="Choose dataset files" onChange={(e) => setFiles(e.target.files)} />
+            </div>
           </div>
           <button className="btn btn-secondary" onClick={doUpload} disabled={upload.loading || !files || files.length === 0}>
             {upload.loading ? 'Uploading…' : 'Upload dataset'}

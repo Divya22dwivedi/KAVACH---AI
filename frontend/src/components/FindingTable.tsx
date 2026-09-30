@@ -58,7 +58,20 @@ export default function FindingTable({ findings, category, severity, onCategory,
             </thead>
             <tbody>
               {findings.map((f) => (
-                <tr key={f.id} className="clickable" onClick={() => onOpen(f)}>
+                <tr
+                  key={f.id}
+                  className="clickable"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Open finding: ${f.title}`}
+                  onClick={() => onOpen(f)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onOpen(f);
+                    }
+                  }}
+                >
                   <td>{f.title}</td>
                   <td><StatusBadge status={f.category} /></td>
                   <td><StatusBadge status={f.severity} /></td>

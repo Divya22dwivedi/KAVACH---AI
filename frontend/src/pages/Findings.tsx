@@ -9,6 +9,7 @@ export default function Findings() {
   const [category, setCategory] = useState('all');
   const [severity, setSeverity] = useState('all');
   const [disposition, setDisposition] = useState('all');
+  const [search, setSearch] = useState('');
   const [drawerFinding, setDrawerFinding] = useState<Finding | null>(null);
 
   const findingsApi = useApi(api.listFindings);
@@ -19,9 +20,15 @@ export default function Findings() {
       if (category !== 'all' && f.category.trim().toLowerCase() !== category) return false;
       if (severity !== 'all' && f.severity.trim().toLowerCase() !== severity) return false;
       if (disposition !== 'all' && (f.disposition ?? 'REVIEW').trim().toUpperCase() !== disposition) return false;
+      if (search.trim()) {
+        const query = search.trim().toLowerCase();
+        const haystack = [f.title, f.category, f.severity, f.detection_method, f.asset_id, f.id]
+          .map((value) => String(value ?? '').toLowerCase());
+        if (!haystack.some((value) => value.includes(query))) return false;
+      }
       return true;
     });
-  }, [findingsApi.data, category, severity, disposition]);
+  }, [findingsApi.data, category, severity, disposition, search]);
 
   const handleSaved = (updated: Finding) => {
     setDrawerFinding(updated);
@@ -43,7 +50,18 @@ export default function Findings() {
         {findingsApi.error && <div className="alert alert-error">{findingsApi.error}</div>}
         {!findingsApi.loading && !findingsApi.error && (
           <>
-            <div className="form-row" style={{ marginBottom: 4 }}>
+            <div className="form-row findings-toolbar" style={{ marginBottom: 4 }}>
+              <div className="field findings-search">
+                <label htmlFor="finding-search">Search findings</label>
+                <input
+                  id="finding-search"
+                  className="input"
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Title, method, asset, or ID"
+                />
+              </div>
               <div className="field">
                 <label htmlFor="disp">Disposition</label>
                 <select id="disp" className="select" value={disposition} onChange={(e) => setDisposition(e.target.value)}>
@@ -56,6 +74,9 @@ export default function Findings() {
               <div className="btn-row" style={{ marginLeft: 'auto' }}>
                 <button className="btn btn-secondary btn-sm" onClick={() => findingsApi.reload()}>Refresh</button>
               </div>
+            </div>
+            <div className="results-count" role="status">
+              Showing <strong>{filtered.length}</strong> of <strong>{findingsApi.data?.length ?? 0}</strong> findings
             </div>
             <FindingTable
               findings={filtered}
