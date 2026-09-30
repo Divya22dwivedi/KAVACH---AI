@@ -1,0 +1,33 @@
+# KavachAI prototype — single-container compose setup.
+# Fully offline at runtime; no external services required.
+#
+#   docker compose -f docker/docker-compose.yml up --build
+#   open http://localhost:8000   (SPA)
+#   POST /api/v1/demo/run        (15-step demo)
+#
+# NOTE: the SQLite DB (kavach.db) is ephemeral inside the container —
+# datasets and reports persist via the volumes below. Re-running the demo
+# regenerates everything deterministically (seed=42 default).
+services:
+  kavach-ai:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: kavach-ai:prototype
+    container_name: kavach-ai
+    ports:
+      - "8000:8000"
+    volumes:
+      - kavach-data:/app/datasets
+      - kavach-reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  kavach-data:
+  kavach-reports:
